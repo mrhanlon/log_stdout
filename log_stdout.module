@@ -1,0 +1,21 @@
+<?php
+
+function log_stdout_watchdog(array $log_entry) {
+  if ($log_entry['severity'] < WATCHDOG_WARNING) {
+    $output = fopen('php://stderr', 'w');
+  } else {
+    $output = fopen('php://stdout', 'w');
+  }
+  $severity = strtoupper(watchdog_severity_levels()[$log_entry['severity']]);
+  $user = $log_entry['user']->name;
+  $request_uri = $log_entry['request_uri'];
+  $referer_uri = $log_entry['referer'];
+  fwrite($output, t('@severity: @message; user: @user; uri: @request_uri; referer: @referer_uri', array(
+    '@severity' => $severity,
+    '@message' => strip_tags(t($log_entry['message'], $log_entry['variables'])),
+    '@user' => $user,
+    '@request_uri' => $request_uri,
+    '@referer_uri' => $referer_uri,
+  )));
+  fclose($output);
+}
