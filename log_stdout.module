@@ -7,12 +7,14 @@ function log_stdout_watchdog(array $log_entry) {
     $output = fopen('php://stdout', 'w');
   }
   $severity = strtoupper(watchdog_severity_levels()[$log_entry['severity']]);
-  $user = $log_entry['user']->name;
+  $user = $log_entry['user']->uid ? $log_entry['user']->name : 'anonymous';
   $request_uri = $log_entry['request_uri'];
   $referer_uri = $log_entry['referer'];
-  fwrite($output, t('@severity: @message; user: @user; uri: @request_uri; referer: @referer_uri', array(
+  $variables = $log_entry['variables'] ? $log_entry['variables'] : array();
+  fwrite($output, t('WATCHDOG: [@severity] [@type] @message | user: @user | uri: @request_uri | referer: @referer_uri', array(
     '@severity' => $severity,
-    '@message' => strip_tags(t($log_entry['message'], $log_entry['variables'])),
+    '@type' => $log_entry['type'],
+    '@message' => strip_tags(t($log_entry['message'], $variables)),
     '@user' => $user,
     '@request_uri' => $request_uri,
     '@referer_uri' => $referer_uri,
