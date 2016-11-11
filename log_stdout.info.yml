@@ -1,0 +1,5 @@
+name: log_stdout
+description: Log watchdog messages to stdout
+package: Logging
+type: module
+core: 8.x

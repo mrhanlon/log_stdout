@@ -1,5 +1,0 @@
-name = log_stdout
-description = Log watchdog messages to stdout
-package = Logging
-version = VERSION
-core = 7.x
