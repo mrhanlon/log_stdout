@@ -32,7 +32,7 @@ class Stdout implements LoggerInterface {
   /**
    * {@inheritdoc}
    */
-  public function log($level, $message, array $context = array()) {
+  public function log($level, $message, array $context = []) {
     if ($level < RfcLogLevel::ERROR || RfcLogLevel::WARNING) {
       $output = fopen('php://stderr', 'w');
     } else {
@@ -45,14 +45,14 @@ class Stdout implements LoggerInterface {
     $request_uri = $context['request_uri'];
     $referrer_uri = $context['referer'];
     $variables = $this->parser->parseMessagePlaceholders($message, $context);
-    fwrite($output, t('WATCHDOG: [@severity] [@type] @message | user: @user | uri: @request_uri | referer: @referer_uri', array(
+    fwrite($output, t('WATCHDOG: [@severity] [@type] @message | user: @user | uri: @request_uri | referer: @referer_uri', [
       '@severity' => $severity,
       '@type' => $context['channel'],
       '@message' => strip_tags(t($message, $variables)),
       '@user' => $user,
       '@request_uri' => $request_uri,
       '@referer_uri' => $referrer_uri,
-    )) . "\r\n");
+    ]) . "\r\n");
     fclose($output);
   }
 
