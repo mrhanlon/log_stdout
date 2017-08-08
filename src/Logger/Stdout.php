@@ -23,7 +23,7 @@ class Stdout implements LoggerInterface {
    * Constructs a Stdout object.
    *
    * @param \Drupal\Core\Logger\LogMessageParserInterface $parser
-   *  The parser to use when extracting message variables.
+   *   The parser to use when extracting message variables.
    */
   public function __construct(LogMessageParserInterface $parser) {
     $this->parser = $parser;
@@ -33,26 +33,36 @@ class Stdout implements LoggerInterface {
    * {@inheritdoc}
    */
   public function log($level, $message, array $context = []) {
-    if ($level < RfcLogLevel::ERROR || RfcLogLevel::WARNING) {
+    if ($level <= RfcLogLevel::WARNING) {
       $output = fopen('php://stderr', 'w');
-    } else {
+    }
+    else {
       $output = fopen('php://stdout', 'w');
     }
     $severity = strtoupper(RfcLogLevel::getLevels()[$level]);
-    /** @var \Drupal\Core\Session\AccountProxy $user */
-    $user = $context['user'];
-    $user = !empty($user->getAccountName()) ? $user->getAccountName() : 'anonymous';
+    $username = '';
+    if (isset($context['user']) && !empty($context['user'])) {
+      $username = $context['user']->getAccountName();
+    }
+    if (empty($username)) {
+      $username = 'anonymous';
+    }
+
     $request_uri = $context['request_uri'];
     $referrer_uri = $context['referer'];
     $variables = $this->parser->parseMessagePlaceholders($message, $context);
-    fwrite($output, t('WATCHDOG: [@severity] [@type] @message | user: @user | uri: @request_uri | referer: @referer_uri', [
-      '@severity' => $severity,
-      '@type' => $context['channel'],
-      '@message' => strip_tags(t($message, $variables)),
-      '@user' => $user,
+    $input_message = strip_tags(t($message, $variables));
+
+    $message = t('WATCHDOG: [@severity] [@type] @message | user: @user | uri: @request_uri | referer: @referer_uri', [
+      '@severity'    => $severity,
+      '@type'        => $context['channel'],
+      '@message'     => $input_message,
+      '@user'        => $username,
       '@request_uri' => $request_uri,
       '@referer_uri' => $referrer_uri,
-    ]) . "\r\n");
+    ]);
+
+    fwrite($output, $message . "\r\n");
     fclose($output);
   }
 
