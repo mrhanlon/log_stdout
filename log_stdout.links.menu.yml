@@ -1,0 +1,6 @@
+log_stdout.settings:
+  title: 'Log Stdout module settings'
+  description: 'Log Stdout module configuration'
+  parent: system.admin_config_development
+  route_name: log_stdout.settings
+  weight: 100
