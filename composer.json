@@ -1,0 +1,11 @@
+{
+    "name": "drupal/log_stdout",
+    "description": "This module provides an hook for Drupal Watchdog that directs log messages to php://stdout or php://stderr for better log handling with Docker.",
+    "type": "drupal-module",
+    "homepage": "https://www.drupal.org/project/log_stdout",
+    "support": {
+        "issues": "https://www.drupal.org/project/issues/log_stdout",
+        "irc": "irc://irc.freenode.org/drupal-support"
+    },
+    "license": "GPL-2.0+"
+}

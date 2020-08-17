@@ -1,0 +1,7 @@
+log_stdout.settings:
+  path: '/admin/config/development/log_stdout'
+  defaults:
+    _form: 'Drupal\log_stdout\Form\LogStdoutConfigForm'
+    _title: 'Log Stdout configuration'
+  requirements:
+    _permission: 'administer site configuration'

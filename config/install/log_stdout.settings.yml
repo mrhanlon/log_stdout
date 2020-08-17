@@ -1,0 +1,1 @@
+format: '@base_url|@timestamp|@type|@ip|@request_uri|@referer|@uid|@link|@message'

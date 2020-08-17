@@ -1,0 +1,6 @@
+services:
+  logger.stdout:
+    class: Drupal\log_stdout\Logger\Stdout
+    arguments: ['@logger.log_message_parser']
+    tags:
+      - { name: logger }
