@@ -28,7 +28,7 @@ class Stdout implements LoggerInterface {
   protected $parser;
 
   /**
-   * Constructs a SysLog object.
+   * Constructs a Stdout object.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The configuration factory object.
