@@ -66,6 +66,7 @@ class LogStdoutConfigForm extends ConfigFormBase {
     $config = $this->config('log_stdout.settings');
 
     $config->set('format', $form_state->getValue('format'));
+    $config->set('use_stderr', $form_state->getValue('use_stderr'));
     $config->save();
 
     return parent::submitForm($form, $form_state);
