@@ -8,9 +8,17 @@ use Drupal\Core\Logger\RfcLogLevel;
 use Drupal\Core\Session\AccountProxy;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Logger\LogMessageParserInterface;
+use Drupal\Core\Config\ConfigFactoryInterface;
 
 class Stdout implements LoggerInterface {
   use RfcLoggerTrait;
+
+  /**
+   * A configuration object containing syslog settings.
+   *
+   * @var \Drupal\Core\Config\Config
+   */
+  protected $config;
 
   /**
    * The message's placeholders parser.
@@ -22,10 +30,13 @@ class Stdout implements LoggerInterface {
   /**
    * Constructs a Stdout object.
    *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The configuration factory object.
    * @param \Drupal\Core\Logger\LogMessageParserInterface $parser
    *   The parser to use when extracting message variables.
    */
-  public function __construct(LogMessageParserInterface $parser) {
+  public function __construct(ConfigFactoryInterface $config_factory, LogMessageParserInterface $parser) {
+    $this->config = $config_factory->get('log_stdout.settings');
     $this->parser = $parser;
   }
 
@@ -33,14 +44,15 @@ class Stdout implements LoggerInterface {
    * {@inheritdoc}
    */
   public function log($level, $message, array $context = []) {
-    $config = \Drupal::config('log_stdout.settings');
+    global $base_url;
 
-    if ($level <= RfcLogLevel::WARNING) {
+    if ($this->config->get('use_stderr') == '1' && $level <= RfcLogLevel::WARNING) {
       $output = fopen('php://stderr', 'w');
     }
     else {
       $output = fopen('php://stdout', 'w');
     }
+
     $severity = strtoupper(RfcLogLevel::getLevels()[$level]);
     $username = '';
     if (isset($context['user']) && !empty($context['user'])) {
@@ -50,33 +62,36 @@ class Stdout implements LoggerInterface {
       $username = 'anonymous';
     }
 
+    // Populate the message placeholders and then replace them in the message.
     $variables = $this->parser->parseMessagePlaceholders($message, $context);
-    $input_message = strip_tags(t($message, $variables));
+    $message = empty($variables) ? $message : strtr($message, $variables);
 
-    /* context
-    [channel] => cron
-    [link] =>
-    [uid] => 0
-    [request_uri] => http://oci.rokebi.com/cron/v5HeY2s06H-VAp14afM9cWWej0S9AwUpmLjJ7KYfzZEnJ691-ZkJVDKca5wU0QsxQyrCyz0b-g
-    [referer] =>
-    [ip] => 10.244.1.128
-    [timestamp] => 1597300569
-    */
+    $fmt = '@timestamp'.
+      '|@severity'.
+      '|@type'.
+      '|@message'.
+      '|@uid'.
+      '|@request_uri'.
+      '|@referer'.
+      '|@ip'.
+      '|@link'.
+      '|@date';
 
-    $message = t( $config->get('format'), [
+    $entry = strtr( $this->config->get('format', $fmt), [
+      '@base_url'   => $base_url,
       '@timestamp'   => $context['timestamp'],
       '@severity'    => $severity,
       '@type'        => $context['channel'],
-      '@message'     => $input_message,
+      '@message'     => strip_tags($message),
       '@uid'         => $context['uid'],
       '@request_uri' => $context['request_uri'],
       '@referer' => $context['referer'],
       '@ip' => $context['ip'],
-      '@link' => $context['link'],
+      '@link' => strip_tags($context['link']),
       '@date' => date('Y-m-d\TH:i:s', $context['timestamp']),
     ]);
 
-    fwrite($output, $message . "\r\n");
+    fwrite($output, $entry . "\r\n");
     fclose($output);
   }
 

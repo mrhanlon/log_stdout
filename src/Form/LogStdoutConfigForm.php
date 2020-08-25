@@ -22,6 +22,16 @@ class LogStdoutConfigForm extends ConfigFormBase {
     // Default settings.
     $config = $this->config('log_stdout.settings');
 
+    $form['use_stderr'] = [
+      '#title' => t('Write warning and error messages to stderr'),
+      '#type' => 'radios',
+      '#default_value' => $config->get('use_stderr'),
+      '#options' => [
+        '0' => t('No'),
+        '1' => t('Yes'),
+      ]
+    ];
+
     $form['format'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Log format'),
@@ -56,6 +66,7 @@ class LogStdoutConfigForm extends ConfigFormBase {
     $config = $this->config('log_stdout.settings');
 
     $config->set('format', $form_state->getValue('format'));
+    $config->set('use_stderr', $form_state->getValue('use_stderr'));
     $config->save();
 
     return parent::submitForm($form, $form_state);

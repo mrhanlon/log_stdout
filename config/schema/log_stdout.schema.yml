@@ -7,3 +7,6 @@ syslog.settings:
     format:
       type: string
       label: 'Format'
+    use_stderr:
+      type: string
+      label: 'Use stderr'
