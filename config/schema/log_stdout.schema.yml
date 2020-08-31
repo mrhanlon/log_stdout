@@ -1,0 +1,12 @@
+# Schema for the configuration files of the syslog module.
+
+syslog.settings:
+  type: config_object
+  label: 'Log stdout settings'
+  mapping:
+    format:
+      type: string
+      label: 'Format'
+    use_stderr:
+      type: string
+      label: 'Use stderr'
