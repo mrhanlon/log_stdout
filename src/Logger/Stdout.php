@@ -54,30 +54,27 @@ class Stdout implements LoggerInterface {
     }
 
     $severity = strtoupper(RfcLogLevel::getLevels()[$level]);
-    $username = '';
-    if (isset($context['user']) && !empty($context['user'])) {
-      $username = $context['user']->getAccountName();
-    }
-    if (empty($username)) {
-      $username = 'anonymous';
-    }
+    $username = $this->getUserName($context);
 
     // Populate the message placeholders and then replace them in the message.
     $variables = $this->parser->parseMessagePlaceholders($message, $context);
     $message = empty($variables) ? $message : strtr($message, $variables);
 
-    $fmt = '@timestamp'.
-      '|@severity'.
-      '|@type'.
-      '|@message'.
-      '|@uid'.
-      '|@request_uri'.
-      '|@referer'.
-      '|@ip'.
-      '|@link'.
-      '|@date';
+    $fmt = $this->config->get('format');
+		if ( empty($fmt)) { 
+			$fmt = '@date'.
+				'|@timestamp'.
+				'|@severity'.
+				'|@type'.
+				'|@message'.
+				'|@uid'.
+				'|@request_uri'.
+				'|@referer'.
+				'|@ip'.
+				'|@link';
+		}
 
-    $entry = strtr( $this->config->get('format', $fmt), [
+    $entry = strtr( $fmt, [
       '@base_url'   => $base_url,
       '@timestamp'   => $context['timestamp'],
       '@severity'    => $severity,
@@ -94,4 +91,11 @@ class Stdout implements LoggerInterface {
     fwrite($output, $entry . "\r\n");
     fclose($output);
   }
+
+	private function getUserName(array $context) {
+    if (isset($context['user']) && !empty($context['user'])) {
+      return $context['user']->getAccountName();
+    }
+		return 'anonymous';
+	}
 }
