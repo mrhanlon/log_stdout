@@ -4,7 +4,7 @@ package: Logging
 type: module
 
 # Information added by Drupal.org packaging script on 2017-08-08
-version: '8.x-1.2'
+version: '8.x-2.0'
 core: '8.x'
 project: 'log_stdout'
 datestamp: 1502196546
